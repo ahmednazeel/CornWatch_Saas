@@ -28,37 +28,88 @@ const FEATURES = [
   },
 ];
 
+// const TIERS = [
+//   {
+//     name: 'Free',
+//     monthly: 0,
+//     yearly: 0,
+//     tagline: 'Kick the tires',
+//     features: ['3 monitors', 'Email alerts', '24h log retention'],
+//   },
+//   {
+//     name: 'Starter',
+//     monthly: 7,
+//     yearly: 70,
+//     tagline: 'For side projects',
+//     features: ['20 monitors', '1-minute checks', 'Email + Slack alerts', '30-day log retention'],
+//   },
+//   {
+//     name: 'Pro',
+//     monthly: 15,
+//     yearly: 150,
+//     tagline: 'For growing teams',
+//     popular: true,
+//     features: ['100 monitors', '1-minute checks', 'Email + Slack + Webhook', '90-day log retention', 'Priority support'],
+//   },
+//   {
+//     name: 'Team',
+//     monthly: 29,
+//     yearly: 290,
+//     tagline: 'For serious infra',
+//     features: ['Unlimited monitors', '1-minute checks', 'All alert channels', '1-year log retention', 'Shared team dashboard'],
+//   },
+// ];
 const TIERS = [
-  {
-    name: 'Free',
-    monthly: 0,
-    yearly: 0,
-    tagline: 'Kick the tires',
-    features: ['3 monitors', '1-minute checks', 'Email alerts', '24h log retention'],
-  },
-  {
-    name: 'Starter',
-    monthly: 7,
-    yearly: 70,
-    tagline: 'For side projects',
-    features: ['20 monitors', '1-minute checks', 'Email + Slack alerts', '30-day log retention'],
-  },
-  {
-    name: 'Pro',
-    monthly: 15,
-    yearly: 150,
-    tagline: 'For growing teams',
-    popular: true,
-    features: ['100 monitors', '1-minute checks', 'Email + Slack + Webhook', '90-day log retention', 'Priority support'],
-  },
-  {
-    name: 'Team',
-    monthly: 29,
-    yearly: 290,
-    tagline: 'For serious infra',
-    features: ['Unlimited monitors', '1-minute checks', 'All alert channels', '1-year log retention', 'Shared team dashboard'],
-  },
+	{
+		name: 'Free',
+		slug: 'free',
+		monthly: 0,
+		yearly: 0,
+		tagline: 'Kick the tires',
+		monitorLimit: 3,
+		minCheckIntervalMinutes: 5,
+		features: [
+			'3 monitors',
+			'5-minute checks',
+			'Email alerts',
+			'24h log retention',
+		],
+	},
+	{
+		name: 'Starter',
+		slug: 'starter',
+		monthly: 7,
+		yearly: 70,
+		tagline: 'For side projects',
+		monitorLimit: 20,
+		minCheckIntervalMinutes: 1,
+		features: [
+			'20 monitors',
+			'1-minute checks',
+			'Email + Slack alerts',
+			'30-day log retention',
+		],
+	},
+	{
+		name: 'Pro',
+		slug: 'pro',
+		monthly: 15,
+		yearly: 150,
+		tagline: 'For growing teams',
+		popular: true,
+		monitorLimit: 100,
+		minCheckIntervalMinutes: 1,
+		features: [
+			'100 monitors',
+			'1-minute checks',
+			'Email + Slack + Webhook',
+			'90-day log retention',
+			'Priority support',
+		],
+	},
 ];
+
+
 
 const FAQS = [
   {
