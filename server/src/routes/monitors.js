@@ -218,155 +218,213 @@ function isValidObjectId(id) {
 
 
 async function isSafeUrl(value) {
-  try {
-    const url = new URL(value);
+	try {
+		const url = new URL(value);
+		console.log('[url] parsed:', url.href);
+		console.log('[url] protocol:', url.protocol);
 
-    console.log('[url] parsed:', url.href);
-    console.log('[url] protocol:', url.protocol);
+		if (!['http:', 'https:'].includes(url.protocol)) {
+			console.log('[url] rejected: protocol');
+			return false;
+		}
 
-    if (!['http:', 'https:'].includes(url.protocol)) {
-      console.log('[url] rejected: protocol');
-      return false;
-    }
+		const hostname = url.hostname.toLowerCase();
 
-    const hostname = url.hostname.toLowerCase();
+		console.log('[url] hostname:', hostname);
 
-    console.log('[url] hostname:', hostname);
+		if (hostname === 'localhost' || hostname.endsWith('.localhost') || hostname.endsWith('.local')) {
+			console.log('[url] rejected: localhost/local');
+			return false;
+		}
 
-    if (
-      hostname === 'localhost' ||
-      hostname.endsWith('.localhost') ||
-      hostname.endsWith('.local')
-    ) {
-      console.log('[url] rejected: localhost/local');
-      return false;
-    }
+		// Direct IP address
+		if (net.isIP(hostname)) {
+			const safe = !isPrivateIp(hostname);
 
-    // Direct IP address
-    if (net.isIP(hostname)) {
-      const safe = !isPrivateIp(hostname);
+			console.log('[url] IP address:', hostname);
+			console.log('[url] private:', !safe);
 
-      console.log('[url] IP address:', hostname);
-      console.log('[url] private:', !safe);
+			return safe;
+		}
 
-      return safe;
-    }
+		// Resolve hostname
+		const addresses = await dns.lookup(hostname, {all: true,});
 
-    // Resolve hostname
-    const addresses = await dns.lookup(hostname, {
-      all: true,
-    });
+		console.log('[url] DNS addresses:', addresses);
 
-    console.log('[url] DNS addresses:', addresses);
+		if (!addresses.length) {
+			console.log('[url] rejected: no DNS addresses');
+			return false;
+		}
 
-    if (!addresses.length) {
-      console.log('[url] rejected: no DNS addresses');
-      return false;
-    }
+		const safe = addresses.every( ({ address }) => !isPrivateIp(address) );
 
-    const safe = addresses.every(
-      ({ address }) => !isPrivateIp(address)
-    );
+		console.log('[url] final result:', safe);
 
-    console.log('[url] final result:', safe);
-
-    return safe;
-  } catch (err) {
-    console.error('[url] validation error:', err);
-    return false;
-  }
+		return safe;
+	} catch (err) {
+		console.error('[url] validation error:', err);
+		return false;
+	}
 }
 
 
 
 function isPrivateIp(ip) {
-  const version = net.isIP(ip);
+	const version = net.isIP(ip);
 
-  if (version === 4) {
-    const [a, b, c, d] = ip.split('.').map(Number);
+	if (version === 4) {
+		const [a, b, c, d] = ip.split('.').map(Number);
 
-    return (
-      a === 10 ||
-      a === 127 ||
-      (a === 169 && b === 254) ||
-      (a === 172 && b >= 16 && b <= 31) ||
-      (a === 192 && b === 168) ||
-      (a === 0) ||
-      (a === 100 && b >= 64 && b <= 127)
-    );
-  }
+		return (
+			a === 10 ||
+			a === 127 ||
+			(a === 169 && b === 254) ||
+			(a === 172 && b >= 16 && b <= 31) ||
+			(a === 192 && b === 168) ||
+			(a === 0) ||
+			(a === 100 && b >= 64 && b <= 127)
+		);
+	}
 
-  if (version === 6) {
-    const normalized = ip.toLowerCase();
+	if (version === 6) {
+		const normalized = ip.toLowerCase();
 
-    return (
-      normalized === '::1' ||
-      normalized === '::' ||
-      normalized.startsWith('fc') ||
-      normalized.startsWith('fd') ||
-      normalized.startsWith('fe8') ||
-      normalized.startsWith('fe9') ||
-      normalized.startsWith('fea') ||
-      normalized.startsWith('feb') ||
-      normalized.startsWith('::ffff:127.') ||
-      normalized.startsWith('::ffff:10.') ||
-      normalized.startsWith('::ffff:192.168.') ||
-      normalized.startsWith('::ffff:172.')
-    );
-  }
+		return (
+		normalized === '::1' ||
+		normalized === '::' ||
+		normalized.startsWith('fc') ||
+		normalized.startsWith('fd') ||
+		normalized.startsWith('fe8') ||
+		normalized.startsWith('fe9') ||
+		normalized.startsWith('fea') ||
+		normalized.startsWith('feb') ||
+		normalized.startsWith('::ffff:127.') ||
+		normalized.startsWith('::ffff:10.') ||
+		normalized.startsWith('::ffff:192.168.') ||
+		normalized.startsWith('::ffff:172.')
+		);
+	}
 
-  return true;
+	return true;
 }
 
-async function validateMonitorPayload(body, { partial = false } = {}) {
-  const errors = [];
-  const data = {};
+// async function validateMonitorPayload(body, { partial = false } = {}) {
+// 	const errors = [];
+// 	const data = {};
 
-  if (!partial || body.name !== undefined) {
-    if (!body.name || typeof body.name !== 'string' || !body.name.trim())
-      errors.push('name is required');
-     else data.name = body.name.trim();
-  }
+// 	if (!partial || body.name !== undefined) {
+// 		if (!body.name || typeof body.name !== 'string' || !body.name.trim()) errors.push('name is required');
+// 		else data.name = body.name.trim();
+// 	}
 
-  if (!partial || body.url !== undefined) {
-    if (typeof body.url !== 'string' || !(await isSafeUrl(body.url)) ) 
-      errors.push('url must be a valid public http(s) URL'); 
-    else data.url = body.url.trim();
-  }
+// 	if (!partial || body.url !== undefined) {
+// 		if (typeof body.url !== 'string' || !(await isSafeUrl(body.url)) ) errors.push('url must be a valid public http(s) URL'); 
+// 		else data.url = body.url.trim();
+// 	}
 
-  if (!partial || body.schedule !== undefined) {
-    try {
-      parser.parseExpression(body.schedule);
-      data.schedule = body.schedule;
-    } catch {
-      errors.push('schedule must be a valid cron expression');
-    }
-  }
+// 	if (!partial || body.schedule !== undefined) {
+// 		try {
+// 			parser.parseExpression(body.schedule);
+// 			data.schedule = body.schedule;
+// 		} catch {
+// 			errors.push('schedule must be a valid cron expression');
+// 		}
+// 	}
 
-  if (body.gracePeriod !== undefined) {
-    const gracePeriod = Number(body.gracePeriod);
-    if (Number.isNaN(gracePeriod) || gracePeriod < 0) 
-      errors.push('gracePeriod must be a non-negative number');
-    else 
-      data.gracePeriod = gracePeriod;
-  }
+// 	if (body.gracePeriod !== undefined) {
+// 		const gracePeriod = Number(body.gracePeriod);
+// 		if (Number.isNaN(gracePeriod) || gracePeriod < 0) errors.push('gracePeriod must be a non-negative number');
+// 		else data.gracePeriod = gracePeriod;
+// 	}
 
-  if (body.timezone !== undefined) 
-    data.timezone = body.timezone;
-  
+// 	if (body.timezone !== undefined)  data.timezone = body.timezone;
+	
 
-  if (body.alertChannels !== undefined) 
-    data.alertChannels = body.alertChannels;
-  
-
-  if (body.isActive !== undefined) 
-    data.isActive = Boolean(body.isActive);
-  
-
-  return { errors, data };
-}
+// 	if (body.alertChannels !== undefined) data.alertChannels = body.alertChannels;
+// 	if (body.isActive !== undefined) data.isActive = Boolean(body.isActive);
+	
+// 	return { errors, data };
+// }
 
 // GET /api/monitors
+
+async function validateMonitorPayload(body, { partial = false, plan = 'free' } = {}) {
+	const errors = [];
+	const data = {};
+
+	const minCheckIntervalMinutes = {
+		free: 5,
+		starter: 1,
+		pro: 1,
+	}[plan];
+
+	if (!minCheckIntervalMinutes) {
+		errors.push('Invalid subscription plan');
+		return { errors, data };
+	}
+
+	if (!partial || body.name !== undefined) {
+		if (!body.name || typeof body.name !== 'string' || !body.name.trim()) {
+			errors.push('name is required');
+		} else {
+			data.name = body.name.trim();
+		}
+	}
+
+	if (!partial || body.url !== undefined) {
+		if (
+			typeof body.url !== 'string' ||
+			!(await isSafeUrl(body.url))
+		) {
+			errors.push('url must be a valid public http(s) URL');
+		} else {
+			data.url = body.url.trim();
+		}
+	}
+
+	if (!partial || body.schedule !== undefined) {
+		try {
+			const intervalMinutes = getCronIntervalMinutes(body.schedule);
+
+			if (intervalMinutes < minCheckIntervalMinutes) {
+				errors.push(
+					`Your ${plan} plan requires a minimum check interval of ${minCheckIntervalMinutes} minutes`
+				);
+			} else {
+				data.schedule = body.schedule;
+			}
+		} catch {
+			errors.push('schedule must be a valid cron expression');
+		}
+	}
+
+	if (body.gracePeriod !== undefined) {
+		const gracePeriod = Number(body.gracePeriod);
+
+		if (Number.isNaN(gracePeriod) || gracePeriod < 0) {
+			errors.push('gracePeriod must be a non-negative number');
+		} else {
+			data.gracePeriod = gracePeriod;
+		}
+	}
+
+	if (body.timezone !== undefined) {
+		data.timezone = body.timezone;
+	}
+
+	if (body.alertChannels !== undefined) {
+		data.alertChannels = body.alertChannels;
+	}
+
+	if (body.isActive !== undefined) {
+		data.isActive = Boolean(body.isActive);
+	}
+
+	return { errors, data };
+}
+
+
 router.get('/', async (req, res, next) => {
   try {
     const monitors = await Monitor.find({
@@ -381,90 +439,87 @@ router.get('/', async (req, res, next) => {
 
 // GET /api/monitors/:id
 router.get('/:id', async (req, res, next) => {
-  try {
-    const { id } = req.params;
-
-    if (!isValidObjectId(id)) {
-      return res.status(400).json({ error: 'Invalid id' });
-    }
-
-    const monitor = await Monitor.findOne({
-      _id: id,
-      userId: req.user._id,
-    });
-
-    if (!monitor) {
-      return res.status(404).json({
-        error: 'Monitor not found',
-      });
-    }
-
-    res.json({ monitor });
-  } catch (err) {
-    next(err);
-  }
+	try {
+		const { id } = req.params;
+		if (!isValidObjectId(id)) return res.status(400).json({ error: 'Invalid id' });
+		
+		const monitor = await Monitor.findOne({
+			_id: id,
+			userId: req.user._id,
+		});
+		if (!monitor) return res.status(404).json({error: 'Monitor not found', });
+		
+		res.json({ monitor });
+	} catch (err) {next(err);}
 });
 
 // POST /api/monitors
+// router.post('/', enforceMonitorLimit, async (req, res, next) => {
+// 	try {
+// 		const { errors, data } = await validateMonitorPayload(req.body);
+// 		if (errors.length) return res.status(400).json({ errors });
+		
+
+// 		const monitor = await Monitor.create({
+// 			...data,
+// 			userId: req.user._id,
+// 		});
+
+// 		res.status(201).json({ monitor });
+// 	} catch (err) {
+// 		next(err);
+// 	}
+// });
 router.post('/', enforceMonitorLimit, async (req, res, next) => {
-  try {
-    const { errors, data } = await validateMonitorPayload(req.body);
-    console.log(req.body)
-    if (errors.length) {
-      return res.status(400).json({ errors });
-    }
+	try {
+		const { errors, data } = await validateMonitorPayload(req.body, {
+			plan: req.user.plan,
+		});
 
-    const monitor = await Monitor.create({
-      ...data,
-      userId: req.user._id,
-    });
+		if (errors.length) {
+			return res.status(400).json({ errors });
+		}
 
-    res.status(201).json({ monitor });
-  } catch (err) {
-    next(err);
-  }
+		const monitor = await Monitor.create({
+			...data,
+			userId: req.user._id,
+		});
+
+		res.status(201).json({ monitor });
+	} catch (err) {
+		next(err);
+	}
 });
-
 // PUT /api/monitors/:id
 router.put('/:id', async (req, res, next) => {
-  try {
-    const { id } = req.params;
+	try {
+		const { id } = req.params;
 
-    if (!isValidObjectId(id)) {
-      return res.status(400).json({ error: 'Invalid id' });
-    }
+		if (!isValidObjectId(id)) return res.status(400).json({ error: 'Invalid id' });
+		
 
-    const { errors, data } = await validateMonitorPayload(
-      req.body,
-      { partial: true }
-    );
+		const { errors, data } = await validateMonitorPayload(req.body,{ partial: true });
 
-    if (errors.length) {
-      return res.status(400).json({ errors });
-    }
+		if (errors.length) return res.status(400).json({ errors });
+		
 
-    const monitor = await Monitor.findOneAndUpdate(
-      {
-        _id: id,
-        userId: req.user._id,
-      },
-      { $set: data },
-      {
-        new: true,
-        runValidators: true,
-      }
-    );
+		const monitor = await Monitor.findOneAndUpdate(
+			{
+				_id: id,
+				userId: req.user._id,
+			},
+			{ $set: data },
+			{
+				new: true,
+				runValidators: true,
+			}
+		);
 
-    if (!monitor) {
-      return res.status(404).json({
-        error: 'Monitor not found',
-      });
-    }
+		if (!monitor) return res.status(404).json({error: 'Monitor not found',});
+		
 
-    res.json({ monitor });
-  } catch (err) {
-    next(err);
-  }
+		res.json({ monitor });
+	} catch (err) {next(err);}
 });
 
 // DELETE /api/monitors/:id

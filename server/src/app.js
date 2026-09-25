@@ -11,34 +11,36 @@ import userRouter from './routes/user.js';
 import { notFoundHandler, errorHandler } from './middleware/errorHandler.js';
 
 export function createApp() {
-  const app = express();
-  
-  app.use(helmet());
-  app.use(cors({ origin: env.clientUrl, credentials: true }));
-  app.use(morgan(env.nodeEnv === 'production' ? 'combined' : 'dev'));
+    const app = express();
+    
+    app.use(helmet());
 
-  const apiLimiter = rateLimit({
-    windowMs: 60 * 1000,
-    max: 120,
-    standardHeaders: true,
-    legacyHeaders: false,
-  });
-  app.use('/api', apiLimiter);
+    app.use(cors({ origin: env.clientUrl, credentials: true }));
+     
+    app.use(morgan(env.nodeEnv === 'production' ? 'combined' : 'dev'));
 
-  // Stripe webhooks need the raw, unparsed body to verify the signature,
-  // so this route is mounted BEFORE the global express.json() parser.
-  app.use('/api/webhooks', express.raw({ type: 'application/json' }), webhooksRouter);
+    const apiLimiter = rateLimit({
+      windowMs: 60 * 1000,
+      max: 120,
+      standardHeaders: true,
+      legacyHeaders: false,
+    });
+    app.use('/api', apiLimiter);
 
-  app.use(express.json());
+    // Stripe webhooks need the raw, unparsed body to verify the signature,
+    // so this route is mounted BEFORE the global express.json() parser.
+    app.use('/api/webhooks', express.raw({ type: 'application/json' }), webhooksRouter);
+    //lemonSqueezy
+    app.use(express.json());
 
-  app.get('/health', (req, res) => res.json({ status: 'ok', time: new Date().toISOString() }));
+    app.get('/health', (req, res) => res.json({ status: 'ok', time: new Date().toISOString() }));
 
-  app.use('/api/monitors', monitorsRouter);
-  app.use('/api/billing', billingRouter);
-  app.use('/api/me', userRouter);
+    app.use('/api/monitors', monitorsRouter); 
+    app.use('/api/billing', billingRouter);
+    app.use('/api/me', userRouter);
 
-  app.use(notFoundHandler);
-  app.use(errorHandler);
+    app.use(notFoundHandler);
+    app.use(errorHandler);
 
-  return app;
+    return app;
 }

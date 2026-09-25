@@ -35,38 +35,38 @@ import { startAgenda, stopAgenda } from './jobs/agenda.js';
 import { env } from './config/env.js';
 
 async function main() {
-  await connectDB();
+	await connectDB();
 
-  const app = createApp();
+	const app = createApp();
 
-  const server = app.listen(env.port, () => {
-    console.log(`[server] listening on port ${env.port} (${env.nodeEnv})`);
-  });
+	const server = app.listen(env.port, () => {
+		console.log(`[server] listening on port ${env.port} (${env.nodeEnv})`);
+	});
 
-  await startAgenda();
+	await startAgenda();
 
-  let isShuttingDown = false;
+	let isShuttingDown = false;
 
-  const shutdown = async (signal) => {
-    if (isShuttingDown) return;
-    isShuttingDown = true;
+	const shutdown = async (signal) => {
+		if (isShuttingDown) return;
+		isShuttingDown = true;
 
-    console.log(`[server] received ${signal}, shutting down gracefully...`);
+		console.log(`[server] received ${signal}, shutting down gracefully...`);
 
-    await new Promise((resolve) => {
-      server.close(resolve);
-    });
+		await new Promise((resolve) => {
+		server.close(resolve);
+		});
 
-    await stopAgenda();
+		await stopAgenda();
 
-    process.exit(0);
-  };
+		process.exit(0);
+	};
 
-  process.on('SIGINT', () => shutdown('SIGINT'));
-  process.on('SIGTERM', () => shutdown('SIGTERM'));
+	process.on('SIGINT', () => shutdown('SIGINT'));
+	process.on('SIGTERM', () => shutdown('SIGTERM'));
 }
 
 main().catch((err) => {
-  console.error('[server] fatal startup error:', err);
-  process.exit(1);
+	console.error('[server] fatal startup error:', err);
+	process.exit(1);
 });
