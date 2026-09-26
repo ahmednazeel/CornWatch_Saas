@@ -360,6 +360,9 @@ export default function LandingPage() {
 					<a href="#features" className="hover:text-foreground">Features</a>
 					<a href="#pricing" className="hover:text-foreground">Pricing</a>
 					<a href="#faq" className="hover:text-foreground">FAQ</a>
+					<Link to="/terms" className="hover:text-foreground">terms</Link>
+          <Link to="/privacy" className="hover:text-foreground">privacy</Link>
+          <Link to="/refund" className="hover:text-foreground">refund</Link>
 				</div>
 			</div>
       </footer>

@@ -9,7 +9,9 @@ import Dashboard from './pages/Dashboard.jsx';
 import MonitorDetail from './pages/MonitorDetail.jsx';
 import Settings from './pages/Settings.jsx';
 import AppLayout from './components/AppLayout.jsx';
-
+import TermsPage from './pages/TermsPage.jsx';
+import PrivacyPage from './pages/PrivacyPage.jsx';
+import RefundPage from './pages/RefundPage.jsx';
 function Protected({ children }) {
   return (
     <>
@@ -27,7 +29,9 @@ export default function App() {
       <Route path="/" element={<LandingPage />} />
       <Route path="/sign-in/*" element={<SignInPage />} />
       <Route path="/sign-up/*" element={<SignUpPage />} />
-
+      <Route path="/terms" element={<TermsPage />} />
+      <Route path="/privacy" element={<PrivacyPage />} />
+      <Route path="/refund" element={<RefundPage />} />
       <Route
         path="/dashboard"
         element={

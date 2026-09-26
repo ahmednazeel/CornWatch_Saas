@@ -1,5 +1,6 @@
 import { Router } from 'express';
 import { handleStripeWebhook } from '../services/stripeService.js';
+import { handlePaddleWebhook } from '../services/paddleWebHook.js';
 // import { handleLemonSqueezyWebhook } from '../services/lemonSqueezy.service.js';
 
 const router = Router();
@@ -31,6 +32,8 @@ router.post('/stripe', async (req, res) => {
 // 		res.status(400).json({error: err.message,});
 // 	}
 // });
+router.post('/paddle', handlePaddleWebhook);
+
 export default router;
 
  

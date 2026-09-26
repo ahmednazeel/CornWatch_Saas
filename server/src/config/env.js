@@ -40,6 +40,10 @@ export const env = {
     lemonSqueezyStarterMonthlyVariant : process.env.LEMONSQUEEZY_STARTER_MONTHLY_VARIANT,
     lemonSqueezyProMonthlyVariant : process.env.LEMONSQUEEZY_PRO_MONTHLY_VARIANT,
     lemonSqueezyWebhookSecret:process.env.LEMONSQUEEZY_WEBHOOK_SECRET,
+    paddleApiSecret: process.env.PADDLE_API_KEY,
+    paddleStarterMonthlyPriceId:process.env.PADDLE_STARTER_MONTHLY_ID,
+    paddleProMonthlyPriceId:process.env.PADDLE_PRO_MONTHLY_ID,
+    paddleWebhookSecret:process.env.PADDLE_WEBHOOK_SECRET,
 };
 
 export const PLAN_LIMITS = {

@@ -8,6 +8,7 @@ import {
 } from '../services/stripeService.js';
 import { env } from '../config/env.js';
 import User from '../models/User.js';
+import { createPaddleTransaction } from '../services/paddle.js';
 
 const router = Router();
 
@@ -57,32 +58,27 @@ router.post('/checkout', async (req, res, next) => {
     const { plan } = req.body;
 
     const user = await User.findById(req.user);
-
-    if (!user) {
-      return res.status(404).json({
-        message: 'User not found',
-      });
-    }
+ 
+    if (!user) return res.status(404).json({message: 'User not found', });
+    
     const variantMap = {
-      starter: env.lemonSqueezyStarterMonthlyVariant,
-      pro: env.lemonSqueezyProMonthlyVariant,
+		starter: env.paddleStarterMonthlyPriceId,
+		pro: env.paddleProMonthlyPriceId,
     };
 
-    const variantId = variantMap[plan];
+    const priceId = variantMap[plan];
 
-    if (!variantId) {
-      return res.status(400).json({
-        message: 'Invalid plan',
-      });
-    }
-
-    const checkoutUrl = await createCheckout({
-      variantId,
+    if (!priceId) return res.status(400).json({message: 'Invalid plan',});
+    
+ 
+    const transaction = await createPaddleTransaction({
+      priceId,
       user,
     });
 
+
     return res.json({
-      checkoutUrl,
+      transaction,
     });
   } catch (err) {
     next(err);
