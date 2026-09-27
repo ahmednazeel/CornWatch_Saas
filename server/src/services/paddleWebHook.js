@@ -174,7 +174,7 @@ export const handlePaddleWebhook = async (req, res) => {
         //
         // Do NOT rely on the frontend redirect
         // to confirm payment.
-
+        
         break;
       }
 

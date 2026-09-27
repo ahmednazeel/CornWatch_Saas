@@ -3,9 +3,9 @@ import { env } from './env.js'
 
 const paddle = new Paddle(
     env.paddleApiSecret,
-    {
-        environment: Environment.sandbox
-    }
+    // {
+    //     environment: Environment.sandbox
+    // }
 )
 
 export default paddle

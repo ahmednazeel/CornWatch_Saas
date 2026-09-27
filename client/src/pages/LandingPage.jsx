@@ -200,7 +200,7 @@ export default function LandingPage() {
           response times, and alerts you by email, Slack, or webhook the second something breaks.
         </p>
 
-        {!submitted ? (
+        {/* {!submitted ? (
           <form onSubmit={handleEmailSubmit} className="flex w-full max-w-md flex-col gap-2 sm:flex-row">
             <input
               type="email"
@@ -218,7 +218,7 @@ export default function LandingPage() {
           <p className="text-sm font-medium text-success">
             Thanks! Check your inbox to finish setting up your account.
           </p>
-        )}
+        )} */}
 
         <p className="text-xs text-muted-foreground">No credit card required &middot; Free plan forever</p>
       </section>

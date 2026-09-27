@@ -43,6 +43,11 @@ lemonSqueezySubscriptionId: {
 			enum: ['free', 'starter', 'pro', 'team'],
 			default: 'free',
 		},
+		subscriptionId:{
+			type:String,
+			default:null,
+
+		}
 	},
 	{ timestamps: true }
 );
