@@ -7,7 +7,7 @@ export const createPaddleTransaction = async ({ priceId, user }) => {
         items: [
         {
             priceId, 
-            // quantity: 1,
+            quantity: 1,
         },
         ],
 
