@@ -383,21 +383,21 @@ async function validateMonitorPayload(body, { partial = false, plan = 'free' } =
 		}
 	}
 
-	if (!partial || body.schedule !== undefined) {
-		try {
-			const intervalMinutes = getCronIntervalMinutes(body.schedule);
+	// if (!partial || body.schedule !== undefined) {
+	// 	try {
+	// 		const intervalMinutes = getCronIntervalMinutes(body.schedule);
 
-			if (intervalMinutes < minCheckIntervalMinutes) {
-				errors.push(
-					`Your ${plan} plan requires a minimum check interval of ${minCheckIntervalMinutes} minutes`
-				);
-			} else {
-				data.schedule = body.schedule;
-			}
-		} catch {
-			errors.push('schedule must be a valid cron expression');
-		}
-	}
+	// 		if (intervalMinutes < minCheckIntervalMinutes) {
+	// 			errors.push(
+	// 				`Your ${plan} plan requires a minimum check interval of ${minCheckIntervalMinutes} minutes`
+	// 			);
+	// 		} else {
+	// 			data.schedule = body.schedule;
+	// 		}
+	// 	} catch {
+	// 		errors.push('schedule must be a valid cron expression');
+	// 	}
+	// }
 
 	if (body.gracePeriod !== undefined) {
 		const gracePeriod = Number(body.gracePeriod);
