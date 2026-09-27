@@ -442,7 +442,7 @@ router.get('/:id', async (req, res, next) => {
 	try {
 		const { id } = req.params;
 		if (!isValidObjectId(id)) return res.status(400).json({ error: 'Invalid id' });
-		
+
 		const monitor = await Monitor.findOne({
 			_id: id,
 			userId: req.user._id,
@@ -453,32 +453,20 @@ router.get('/:id', async (req, res, next) => {
 	} catch (err) {next(err);}
 });
 
-// POST /api/monitors
-// router.post('/', enforceMonitorLimit, async (req, res, next) => {
-// 	try {
-// 		const { errors, data } = await validateMonitorPayload(req.body);
-// 		if (errors.length) return res.status(400).json({ errors });
-		
 
-// 		const monitor = await Monitor.create({
-// 			...data,
-// 			userId: req.user._id,
-// 		});
-
-// 		res.status(201).json({ monitor });
-// 	} catch (err) {
-// 		next(err);
-// 	}
-// });
 router.post('/', enforceMonitorLimit, async (req, res, next) => {
 	try {
 		const { errors, data } = await validateMonitorPayload(req.body, {
 			plan: req.user.plan,
 		});
 
+
 		if (errors.length) {
+		console.log('[monitor] validation errors:', errors);
+		console.log('[monitor] request body:', req.body);
 			return res.status(400).json({ errors });
 		}
+		
 
 		const monitor = await Monitor.create({
 			...data,
