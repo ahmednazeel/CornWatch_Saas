@@ -25,6 +25,12 @@ export function createApp() {
       standardHeaders: true,
       legacyHeaders: false,
     });
+
+
+    app.use((req, res, next) => {
+  console.log('[REQUEST]', req.method, req.originalUrl);
+  next();
+});
     app.use('/api', apiLimiter);
 
     // Stripe webhooks need the raw, unparsed body to verify the signature,
