@@ -56,10 +56,10 @@ export default function AppLayout({ children }) {
 
       <div className="flex flex-1 flex-col">
         <header className="flex h-16 items-center justify-between border-b border-border px-4 md:px-8">
-          <div className="flex items-center gap-2 md:hidden">
-            <Activity className="h-5 w-5 text-primary" />
-            <span className="font-semibold">CronWatch</span>
-          </div>
+<NavLink to={'/'} className="flex h-16 items-center gap-2 border-b border-border px-6">
+          <img src="/logo.png" className='w-10' alt='cornwatch app logo for detecting api endpoint failed'/>
+          <span className="font-semibold">CronWatch</span>
+        </NavLink>
           <div className="ml-auto flex items-center gap-4">
             <UserButton afterSignOutUrl="/" />
           </div>
